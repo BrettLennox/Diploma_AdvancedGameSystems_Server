@@ -2,7 +2,12 @@ using RiptideNetworking;
 using RiptideNetworking.Utils;
 using UnityEngine;
 
-public enum ClientToServerId
+public enum ServerToClientId : ushort
+{
+    playerSpawned = 1,
+}
+
+public enum ClientToServerId : ushort
 {
     name = 1,
 }
@@ -20,7 +25,7 @@ public class NetworkManager : MonoBehaviour
     [SerializeField] private ushort s_maxClientCount;
     #endregion
     #region Properties
-    public NetworkManager NetworkManagerInstance
+    public static NetworkManager NetworkManagerInstance
     {
         //Property Read is public by default and readys the instance
         get => _networkManagerInstance;
@@ -50,6 +55,8 @@ public class NetworkManager : MonoBehaviour
 
     private void Start()
     {
+        Application.targetFrameRate = 6;
+        
         //Logs what the network is doing
         RiptideLogger.Initialize(Debug.Log, Debug.Log, Debug.LogWarning, Debug.LogError, false);
         //Create new server
