@@ -4,7 +4,8 @@ using UnityEngine;
 
 public enum ServerToClientId : ushort
 {
-    playerSpawned = 1,
+    sync = 1,
+    playerSpawned,
     playerMovement,
 }
 
@@ -47,6 +48,7 @@ public class NetworkManager : MonoBehaviour
         }
     }
     public Server GameServer { get; private set; }
+    public ushort CurrentTick { get; private set; } = 0;
     #endregion
 
     private void Awake()
@@ -73,6 +75,11 @@ public class NetworkManager : MonoBehaviour
     private void FixedUpdate()
     {
         GameServer.Tick();
+
+        if (CurrentTick % 200 == 0)
+            SendSync();
+
+        CurrentTick++;
     }
 
     //When the game Closes it kills the connection to the server
@@ -86,5 +93,13 @@ public class NetworkManager : MonoBehaviour
         //When a player leaves the server Destroy the player object
         if(Player.list.TryGetValue(e.Id, out Player player))
             Destroy(player.gameObject);
+    }
+
+    private void SendSync()
+    {
+        Message message = Message.Create(MessageSendMode.unreliable, (ushort)ServerToClientId.sync);
+        message.Add(CurrentTick);
+
+        GameServer.SendToAll(message);
     }
 }

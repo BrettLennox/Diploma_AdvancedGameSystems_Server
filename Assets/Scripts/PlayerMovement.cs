@@ -102,8 +102,11 @@ public class PlayerMovement : MonoBehaviour
 
     private void SendMovement()
     {
+        if (NetworkManager.NetworkManagerInstance.CurrentTick % 2 != 0)
+            return;
         Message message = Message.Create(MessageSendMode.unreliable, ServerToClientId.playerMovement);
         message.AddUShort(_player.Id);
+        message.AddUShort(NetworkManager.NetworkManagerInstance.CurrentTick);
         message.AddVector3(transform.position);
         message.AddVector3(_camProxy.forward);
         NetworkManager.NetworkManagerInstance.GameServer.SendToAll(message);
